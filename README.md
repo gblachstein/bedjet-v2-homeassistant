@@ -2,6 +2,8 @@
 
 Control a **BedJet V2** from Home Assistant using an ESP32 as a Bluetooth-to-MQTT bridge.
 
+> **A friendly heads-up:** I'm not a developer, just a BedJet V2 owner who really wanted it in Home Assistant. AI tools did a lot of the heavy lifting in writing and debugging the firmware and the Home Assistant config. It works well in my setup, but expect some rough edges. Issues and pull requests from people who know this stuff better are very welcome!
+
 The Home Assistant BedJet integration (core and HACS) only supports the **BedJet 3**. The V2 uses a different BLE protocol, so this project puts an ESP32 near the bed to translate between it and MQTT:
 
 ```
@@ -35,7 +37,7 @@ homeassistant/packages/
 
 ## Requirements
 
-- A **classic ESP32** dev board (ESP32-WROOM / DevKit) within good Bluetooth range of the BedJet. The ESP32-S2 has no Bluetooth, so it won't work.
+- An **ESP32** dev board within good Bluetooth range of the BedJet. I used an [ESP-WROOM-32 ESP32 ESP-32S development board (Amazon)](https://a.co/d/0crXcJcD). Any classic ESP32-WROOM-32 DevKit should work. The ESP32-S2 has no Bluetooth, so it won't work.
 - **Arduino IDE** 2.x with the **esp32 by Espressif** board package, plus the **PubSubClient** library by Nick O'Leary (install it from the Library Manager).
 - An **MQTT broker**, such as the Mosquitto add-on in Home Assistant, and an MQTT username and password for the ESP32.
 - The **MQTT integration** set up in Home Assistant.
@@ -52,7 +54,7 @@ homeassistant/packages/
    - `MQTT_HOST` / `MQTT_PORT` / `MQTT_USER` / `MQTT_PASSWORD`: your broker. With the Mosquitto add-on, `MQTT_HOST` is your Home Assistant IP.
    - Optional: `MQTT_CLIENT_ID` and `OTA_HOSTNAME` (must be unique if you run more than one bridge), and `OTA_PASSWORD`.
 
-   `config.h` is in `.gitignore`, so your credentials won't be committed.
+   `config.h` is git-ignored, so if you fork or push this repo, your Wi-Fi and MQTT passwords stay on your machine.
 3. Board: **ESP32 Dev Module**. Partition scheme: **Minimal SPIFFS (1.9MB APP with OTA)**, or **Huge APP** if you don't need OTA. BLE + Wi-Fi usually doesn't fit the default partition ("Sketch too big").
 4. Upload, then open the Serial Monitor at **115200** baud. You should see:
    ```
@@ -123,6 +125,7 @@ The bridge only implements the BLE commands that were worked out for everyday co
 ## Notes and limitations
 
 - **One Bluetooth connection at a time.** While the ESP32 is connected, the BedJet phone app can't connect. Turn off `switch.bedjet_ble_connection` to use the app, then turn it back on. While it's off, HA shows the BedJet as off and ignores commands.
+- **Beep control is flaky.** The beep switch seems to stop working after a while. I haven't cared enough to dig into why yet, so PRs are welcome.
 - **"Auto" in the climate card means Turbo.** The V2 has no real auto mode.
 - **Temp, fan and timer commands resend the full state.** If no timer is running, the bridge sets an 8-hour timer when you change temp or fan.
 - **Automatic reconnects.** After an ESP32 reboot, the bridge retries the BedJet connection every 20 s.
