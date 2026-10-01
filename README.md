@@ -41,7 +41,11 @@ homeassistant/packages/
 - **Arduino IDE** 2.x with the **esp32 by Espressif** board package, plus the **PubSubClient** library by Nick O'Leary (install it from the Library Manager).
 - An **MQTT broker**, such as the Mosquitto add-on in Home Assistant, and an MQTT username and password for the ESP32.
 - The **MQTT integration** set up in Home Assistant.
-- Your BedJet V2's **Bluetooth MAC address**. Scan with a BLE app such as nRF Connect while the BedJet phone app is closed. The device usually shows up as `BEDJET`.
+- Your BedJet V2's **Bluetooth MAC address**. The device usually shows up as `BEDJET`. Two easy ways to find it:
+  - **In Home Assistant:** if your HA host has Bluetooth or you run an ESPHome Bluetooth proxy, go to **Settings → Devices & Services → Bluetooth → Configure → Advertisement monitor** and look for `BEDJET`.
+  - **On your phone:** use a BLE scanner app such as nRF Connect.
+
+  Close the BedJet phone app first. The BedJet usually stops advertising while something is connected to it.
 
 ## Installation
 
