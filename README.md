@@ -129,3 +129,11 @@ The bridge only implements the BLE commands that were worked out for everyday co
 - **No MQTT availability topic yet.** If the ESP32 goes offline, HA keeps showing the last values instead of `unavailable`.
 - **Hard-coded topics.** Everything uses `home/bedjet/...`. If you change the topics in the sketch, update the YAML to match.
 - **Unofficial.** This project isn't affiliated with or endorsed by BedJet. Use at your own risk.
+
+## Credits
+
+The BedJet V2 BLE protocol (service/characteristic UUIDs, packet layout, checksum and status decoding) was reverse-engineered by **[@roycamp](https://github.com/roycamp)**. See **[roycamp/bedjet-protocol](https://github.com/roycamp/bedjet-protocol)**. This bridge builds on that work.
+
+## License
+
+Released under the [MIT License](LICENSE).
