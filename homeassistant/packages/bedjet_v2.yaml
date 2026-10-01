@@ -1,0 +1,115 @@
+# BedJet V2 Home Assistant package
+# Requires the MQTT integration. See README for install options.
+
+mqtt:
+  climate:
+    - name: "BedJet V2"
+      unique_id: bedjet_v2_climate
+      current_temperature_topic: "home/bedjet/status"
+      current_temperature_template: "{{ value_json.temp }}"
+      temperature_state_topic: "home/bedjet/status"
+      temperature_state_template: "{{ value_json.target }}"
+      temperature_command_topic: "home/bedjet/command"
+      temperature_command_template: "TEMP {{ value }}"
+      min_temp: 66
+      max_temp: 104
+      mode_state_topic: "home/bedjet/status"
+      mode_state_template: >-
+        {% set m = value_json.mode %}
+        {%- if m == 'COOL' %}cool{% elif m == 'HEAT' %}heat{% elif m == 'TURBO' %}auto{% else %}off{% endif %}
+      mode_command_topic: "home/bedjet/command"
+      mode_command_template: >-
+        {% if value == 'cool' %}COOL{% elif value == 'heat' %}HEAT{% elif value == 'auto' %}TURBO{% else %}OFF{% endif %}
+      fan_mode_state_topic: "home/bedjet/status"
+      fan_mode_state_template: "{{ value_json.fan }}"
+      fan_mode_command_topic: "home/bedjet/command"
+      fan_mode_command_template: "FAN {{ value }}"
+      modes: ["off", "cool", "heat", "auto"]
+      fan_modes: ["5","10","15","20","25","30","35","40","45","50",
+                  "55","60","65","70","75","80","85","90","95","100"]
+
+  sensor:
+    - name: "BedJet ESP32 IP"
+      unique_id: bedjet_esp32_ip
+      state_topic: "home/bedjet/ip"
+    - name: "BedJet Time Remaining"
+      unique_id: bedjet_time_remaining
+      state_topic: "home/bedjet/status"
+      value_template: >-
+        {% set m = value_json.timer | int %}{{ '%d:%02d' | format(m // 60, m % 60) }}
+      icon: mdi:timer
+
+  number:
+    - name: "BedJet Timer"
+      unique_id: bedjet_timer
+      state_topic: "home/bedjet/status"
+      value_template: "{{ value_json.timer }}"
+      command_topic: "home/bedjet/command"
+      command_template: "TIMER {{ value }}"
+      min: 0
+      max: 720
+      step: 10
+      unit_of_measurement: "min"
+
+  button:
+    - name: "BedJet Timer Add 15m"
+      unique_id: bedjet_timer_add_15m
+      command_topic: "home/bedjet/command"
+      payload_press: "TIMER +15"
+
+  switch:
+    - name: "BedJet BLE Connection"
+      unique_id: bedjet_ble_connection
+      state_topic: "home/bedjet/ble"
+      state_on: "ON"
+      state_off: "OFF"
+      command_topic: "home/bedjet/command"
+      payload_on: "BLE ON"
+      payload_off: "BLE OFF"
+      icon: mdi:bluetooth
+    - name: "BedJet Turbo Mode"
+      unique_id: bedjet_turbo_mode
+      state_topic: "home/bedjet/status"
+      value_template: "{% if value_json.mode == 'TURBO' %}ON{% else %}OFF{% endif %}"
+      command_topic: "home/bedjet/command"
+      payload_on: "TURBO"
+      payload_off: "OFF"
+      icon: mdi:rocket
+    - name: "BedJet Beep"
+      unique_id: bedjet_beep
+      state_topic: "home/bedjet/status"
+      value_template: "{{ value_json.beep }}"
+      state_on: "ON"
+      state_off: "OFF"
+      command_topic: "home/bedjet/command"
+      payload_on: "BEEP ON"
+      payload_off: "BEEP OFF"
+
+  fan:
+    - name: "BedJet Fan"
+      unique_id: bedjet_fan
+      state_topic: "home/bedjet/status"
+      state_value_template: "{% if value_json.fan > 0 %}ON{% else %}OFF{% endif %}"
+      command_topic: "home/bedjet/command"
+      command_template: "{% if value == 'ON' %}FAN 50{% else %}OFF{% endif %}"
+      percentage_state_topic: "home/bedjet/status"
+      percentage_value_template: "{{ value_json.fan }}"
+      percentage_command_topic: "home/bedjet/command"
+      percentage_command_template: "FAN {{ value }}"
+
+script:
+  reset_bedjet:
+    alias: Reset the BedJet
+    icon: mdi:restart
+    description: Drops the BLE link for 5 s and reconnects - unsticks the bridge.
+    sequence:
+      - action: mqtt.publish
+        data:
+          topic: home/bedjet/command
+          payload: "BLE OFF"
+      - delay:
+          seconds: 5
+      - action: mqtt.publish
+        data:
+          topic: home/bedjet/command
+          payload: "BLE ON"
