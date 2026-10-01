@@ -2,6 +2,7 @@
 // Board: ESP32 with Bluetooth LE (classic ESP32-WROOM / DevKit recommended). The ESP32-S2 has no Bluetooth.
 // Libraries: ESP32 Arduino core (BLEDevice, WiFi, ArduinoOTA) + PubSubClient (Nick O'Leary)
 // All user settings live in config.h - see config.example.h.
+// BedJet V2 BLE protocol credit: reverse-engineered by @roycamp - https://github.com/roycamp/bedjet-protocol
 
 #include "BLEDevice.h"
 #include <WiFi.h>
